@@ -115,7 +115,7 @@ const downloadIcs = () => {
 
 <template>
   <main class="container">
-    <h1 class="header-title">🔥🔥🔥 Beacon 🔥🔥🔥</h1>
+    <h1 class="header-title">🔥 Beacon 🔥</h1>
     <p class="quote"><i>"Gondor calls for help!"</i></p>
 
     <div v-if="isLoading" class="loading-state">Lighting the fires...</div>
