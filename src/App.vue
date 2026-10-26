@@ -13,9 +13,11 @@ const isLoading = ref(false)
 const formWhat = ref('')
 const formWhere = ref('')
 const formWhen = ref('')
+const formTime = ref('')
+const formNotes = ref('')
 
 // View data (View Mode)
-const viewData = ref({ what: '', where: '', when: '' })
+const viewData = ref({ what: '', where: '', when: '', notes: '' })
 const attendees = ref<{ id: string, name: string }[]>([])
 const guestName = ref('')
 
@@ -34,7 +36,7 @@ const fetchEvent = async (id: string) => {
   isLoading.value = true
   const { data, error } = await supabase.from('events').select('*').eq('id', id).single()
   if (data) {
-    viewData.value = { what: data.what, where: data.where, when: data.when }
+    viewData.value = { what: data.what, where: data.where, when: data.when, notes: data.notes }
   } else if (error) {
     console.error(error)
   }
@@ -49,10 +51,14 @@ const fetchAttendees = async (id: string) => {
 
 const lightBeacon = async () => {
   isLoading.value = true
+
+  const dateTimeString = formTime.value ? `${formWhen.value}T${formTime.value}` : `${formWhen.value}T00:00`
+
   const { data, error } = await supabase.from('events').insert({
     what: formWhat.value,
     "where": formWhere.value,
-    "when": new Date(formWhen.value).toISOString()
+    "when": new Date(dateTimeString).toISOString(),
+    notes: formNotes.value
   }).select().single()
 
   isLoading.value = false
@@ -91,12 +97,18 @@ const downloadIcs = () => {
   const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000)
   const formatDate = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
 
+  const eventUrl = window.location.href
+  const notesDesc = viewData.value.notes ? `${viewData.value.notes}\\n\\n` : ''
+  const description = `${notesDesc}Link: ${eventUrl}`
+
   const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "BEGIN:VEVENT",
     `SUMMARY:${viewData.value.what}`,
     `LOCATION:${viewData.value.where}`,
+    `DESCRIPTION:${description}`,
+    `URL:${eventUrl}`,
     `DTSTART:${formatDate(startDate)}`,
     `DTEND:${formatDate(endDate)}`,
     "END:VEVENT",
@@ -129,8 +141,12 @@ const downloadIcs = () => {
         <div class="form-group">
           <input v-model="formWhere" type="text" placeholder="Where? (e.g., The Prancing Pony)" required />
         </div>
+        <div class="form-group time-group">
+          <input v-model="formWhen" type="date" required />
+          <input v-model="formTime" type="time" />
+        </div>
         <div class="form-group">
-          <input v-model="formWhen" type="datetime-local" required />
+          <textarea v-model="formNotes" placeholder="Notes (optional)" rows="2"></textarea>
         </div>
         <button type="submit" class="primary-btn">Light the Beacon!</button>
       </form>
@@ -150,6 +166,7 @@ const downloadIcs = () => {
         <div class="event-details">
           <p><strong>Where:</strong> {{ viewData.where }}</p>
           <p><strong>When:</strong> {{ new Date(viewData.when).toLocaleString() }}</p>
+          <p v-if="viewData.notes"><strong>Notes:</strong> {{ viewData.notes }}</p>
         </div>
       </div>
 
@@ -236,7 +253,13 @@ const downloadIcs = () => {
   margin-bottom: 1.2rem;
 }
 
-input {
+.time-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+input,
+textarea {
   display: block;
   width: 100%;
   padding: 0.8rem 1rem;
@@ -247,9 +270,15 @@ input {
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-input:focus {
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
   outline: none;
   border-color: #f59e0b;
   box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
