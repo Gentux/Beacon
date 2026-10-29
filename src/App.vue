@@ -126,289 +126,101 @@ const downloadIcs = () => {
 </script>
 
 <template>
-  <main class="container">
-    <h1 class="header-title">🔥 Beacon 🔥</h1>
-    <p class="quote"><i>"Gondor calls for help!"</i></p>
+  <main
+    class="w-full max-w-md mx-auto bg-[#111827] sm:rounded-[2rem] sm:border sm:border-slate-800 sm:shadow-[0_0_60px_rgba(245,158,11,0.05)] min-h-screen sm:min-h-[auto] flex flex-col relative overflow-hidden">
+    <div class="p-6 sm:p-8 flex-1 flex flex-col">
+      <h1
+        class="text-4xl font-black text-center text-amber-400 uppercase tracking-[0.25em] drop-shadow-[0_0_15px_rgba(251,191,36,0.6)] mb-2 mt-4">
+        🔥 Beacon 🔥</h1>
+      <p class="text-slate-400 text-center italic mb-8">"Gondor calls for help!"</p>
 
-    <div v-if="isLoading" class="loading-state">Lighting the fires...</div>
-
-    <!-- Creation Mode -->
-    <div v-if="!eventId && !isLoading" class="create-mode">
-      <form @submit.prevent="lightBeacon">
-        <div class="form-group">
-          <input v-model="formWhat" type="text" placeholder="What? (e.g., Drinks)" required />
-        </div>
-        <div class="form-group">
-          <input v-model="formWhere" type="text" placeholder="Where? (e.g., The Prancing Pony)" required />
-        </div>
-        <div class="form-group time-group">
-          <input v-model="formWhen" type="date" required />
-          <input v-model="formTime" type="time" />
-        </div>
-        <div class="form-group">
-          <textarea v-model="formNotes" placeholder="Notes (optional)" rows="2"></textarea>
-        </div>
-        <button type="submit" class="primary-btn">Light the Beacon!</button>
-      </form>
-
-      <div v-if="shareUrl" class="result">
-        <div class="qr-container">
-          <canvas ref="qrcodeCanvas"></canvas>
-        </div>
-        <p><a :href="shareUrl" class="glow-link">Direct Link</a></p>
-      </div>
-    </div>
-
-    <!-- View Mode -->
-    <div v-else-if="eventId && !isLoading" class="view-mode">
-      <div class="event-card">
-        <h2 class="event-title">{{ viewData.what }}</h2>
-        <div class="event-details">
-          <p><strong>Where:</strong> {{ viewData.where }}</p>
-          <p><strong>When:</strong> {{ new Date(viewData.when).toLocaleString() }}</p>
-          <p v-if="viewData.notes"><strong>Notes:</strong> {{ viewData.notes }}</p>
-        </div>
+      <div v-if="isLoading"
+        class="text-amber-400 font-medium animate-pulse text-center flex-1 flex items-center justify-center">
+        Lighting the fires...
       </div>
 
-      <button @click="downloadIcs" class="secondary-btn">Add to Agenda (.ics)</button>
+      <!-- Creation Mode -->
+      <div v-if="!eventId && !isLoading" class="flex flex-col flex-1">
+        <form @submit.prevent="lightBeacon" class="flex flex-col gap-4">
+          <input v-model="formWhat" type="text" placeholder="What? (e.g., Drinks)" required
+            class="w-full px-4 py-3.5 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
 
-      <div class="attendees-section">
-        <h4>Who has answered the call? ({{ attendees.length }})</h4>
-        <ul class="attendees-list">
-          <li v-for="guest in attendees" :key="guest.id">{{ guest.name }}</li>
-        </ul>
+          <input v-model="formWhere" type="text" placeholder="Where? (e.g., The Prancing Pony)" required
+            class="w-full px-4 py-3.5 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
 
-        <form @submit.prevent="joinEvent" class="join-form">
-          <input v-model="guestName" type="text" placeholder="Your name" required />
-          <button type="submit" class="primary-btn">I'm coming!</button>
+          <div class="flex gap-3">
+            <input v-model="formWhen" type="date" required
+              class="w-full px-4 py-3.5 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50" />
+            <input v-model="formTime" type="time"
+              class="w-full px-4 py-3.5 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50" />
+          </div>
+
+          <textarea v-model="formNotes" placeholder="Notes (optional)" rows="2"
+            class="w-full px-4 py-3.5 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500 resize-y"></textarea>
+
+          <button type="submit"
+            class="w-full py-4 mt-2 rounded-xl font-bold text-lg text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(234,88,12,0.6)] transition-all">
+            Light the Beacon!
+          </button>
         </form>
+
+        <div v-if="shareUrl" class="mt-10 text-center flex flex-col items-center">
+          <div class="bg-white p-3 rounded-2xl inline-block mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+            <canvas ref="qrcodeCanvas"></canvas>
+          </div>
+          <p>
+            <a :href="shareUrl"
+              class="text-amber-400 font-medium hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] transition-all">
+              Direct Link
+            </a>
+          </p>
+        </div>
       </div>
 
-      <p class="footer-link"><a href="/" class="glow-link">Create your own Beacon</a></p>
+      <!-- View Mode -->
+      <div v-else-if="eventId && !isLoading" class="flex flex-col flex-1">
+        <div
+          class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 sm:p-8 rounded-2xl mb-6 border border-orange-600 shadow-[inset_0_0_20px_rgba(245,158,11,0.05),0_0_40px_rgba(234,88,12,0.2)]">
+          <h2 class="text-amber-300 text-3xl font-bold mb-6 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]">{{
+            viewData.what }}</h2>
+          <div class="space-y-3 text-lg text-slate-300">
+            <p><strong class="text-slate-50">Where:</strong> {{ viewData.where }}</p>
+            <p><strong class="text-slate-50">When:</strong> {{ new Date(viewData.when).toLocaleString() }}</p>
+            <p v-if="viewData.notes"><strong class="text-slate-50">Notes:</strong> {{ viewData.notes }}</p>
+          </div>
+        </div>
+
+        <button @click="downloadIcs"
+          class="w-full py-4 rounded-xl font-bold text-lg text-slate-100 bg-slate-800 border border-slate-700 hover:bg-slate-700 transition-all mb-8">
+          Add to Agenda (.ics)
+        </button>
+
+        <div class="mt-2 bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
+          <h4 class="text-slate-400 font-medium mb-4">Who has answered the call? ({{ attendees.length }})</h4>
+          <ul class="space-y-2 mb-6">
+            <li v-for="guest in attendees" :key="guest.id"
+              class="bg-[#111827] px-4 py-3 rounded-lg border-l-4 border-amber-500 text-slate-200">
+              {{ guest.name }}
+            </li>
+          </ul>
+
+          <form @submit.prevent="joinEvent" class="flex gap-2">
+            <input v-model="guestName" type="text" placeholder="Your name" required
+              class="flex-1 px-4 py-3 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
+            <button type="submit"
+              class="px-6 rounded-xl font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(234,88,12,0.6)] transition-all">
+              I'm coming!
+            </button>
+          </form>
+        </div>
+
+        <p class="mt-12 text-center">
+          <a href="/"
+            class="text-amber-400 font-medium hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] transition-all">
+            Create your own Beacon
+          </a>
+        </p>
+      </div>
     </div>
   </main>
 </template>
-
-<style scoped>
-:global(body) {
-  background-color: #0b0f19;
-  /* Deep night sky */
-  color: #f1f5f9;
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.container {
-  font-family: system-ui, -apple-system, sans-serif;
-  width: 100%;
-  max-width: 500px;
-  margin: 3rem 1rem;
-  padding: 2.5rem 2rem;
-  text-align: center;
-  background: #111827;
-  border-radius: 16px;
-  box-shadow: 0 0 60px rgba(245, 158, 11, 0.05);
-  /* Subtle ambient glow */
-  border: 1px solid #1f2937;
-}
-
-.header-title {
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem 0;
-  color: #fbbf24;
-  text-transform: uppercase;
-  letter-spacing: 4px;
-  /* The beacon glow */
-  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 0 40px rgba(245, 158, 11, 0.4);
-}
-
-.quote {
-  color: #64748b;
-  margin-bottom: 2.5rem;
-  font-size: 1.1rem;
-}
-
-.loading-state {
-  color: #fbbf24;
-  font-weight: 500;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.time-group {
-  display: flex;
-  gap: 0.5rem;
-}
-
-input,
-textarea {
-  display: block;
-  width: 100%;
-  padding: 0.8rem 1rem;
-  box-sizing: border-box;
-  background: #0b0f19;
-  border: 1px solid #374151;
-  color: #f8fafc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  font-family: inherit;
-}
-
-textarea {
-  resize: vertical;
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: #f59e0b;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
-}
-
-button {
-  padding: 0.8rem 1.5rem;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
-  color: white;
-  box-shadow: 0 4px 20px rgba(234, 88, 12, 0.4);
-}
-
-.primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(234, 88, 12, 0.6);
-}
-
-.secondary-btn {
-  background: #1f2937;
-  color: #f1f5f9;
-  border: 1px solid #374151;
-}
-
-.secondary-btn:hover {
-  background: #374151;
-}
-
-.result {
-  margin-top: 2.5rem;
-}
-
-.qr-container {
-  display: inline-block;
-  background: white;
-  padding: 10px;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
-}
-
-.event-card {
-  background: linear-gradient(145deg, #1e293b, #0f172a);
-  padding: 2.5rem 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  border: 1px solid #ea580c;
-  box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.05), 0 0 40px rgba(234, 88, 12, 0.2);
-}
-
-.event-title {
-  color: #fcd34d;
-  font-size: 2rem;
-  margin: 0 0 1.5rem 0;
-  text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
-}
-
-.event-details p {
-  margin: 0.5rem 0;
-  font-size: 1.1rem;
-  color: #cbd5e1;
-}
-
-.event-details strong {
-  color: #f8fafc;
-}
-
-.attendees-section {
-  margin-top: 3rem;
-  text-align: left;
-  background: #1f2937;
-  padding: 1.5rem;
-  border-radius: 12px;
-}
-
-.attendees-section h4 {
-  margin-top: 0;
-  color: #94a3b8;
-}
-
-.attendees-list {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 1.5rem;
-}
-
-.attendees-list li {
-  background: #111827;
-  margin-bottom: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  border-left: 4px solid #f59e0b;
-  color: #e2e8f0;
-}
-
-.join-form {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.join-form input {
-  flex: 1;
-}
-
-.join-form button {
-  width: auto;
-}
-
-a.glow-link {
-  color: #fbbf24;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-a.glow-link:hover {
-  color: #fef3c7;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
-}
-
-.footer-link {
-  margin-top: 3rem;
-}
-</style>
