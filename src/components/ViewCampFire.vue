@@ -43,6 +43,13 @@ const joinEvent = async () => {
     if (!localStorage.getItem('beacon_name')) {
       guestName.value = ''
     }
+
+    const attended = JSON.parse(localStorage.getItem('beacon_attended_events') || '[]')
+    if (!attended.includes(props.eventId)) {
+      attended.push(props.eventId)
+      localStorage.setItem('beacon_attended_events', JSON.stringify(attended))
+    }
+
     await fetchAttendees(props.eventId)
   } else {
     console.error(error)
@@ -121,7 +128,7 @@ const downloadIcs = () => {
             class="flex-1 px-4 py-3 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
           <button type="submit"
             class="px-6 rounded-xl font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(234,88,12,0.6)] transition-all">
-            I'm coming!
+            Join the circle
           </button>
         </form>
       </div>
@@ -129,7 +136,7 @@ const downloadIcs = () => {
       <p class="mt-12 text-center">
         <a href="/"
           class="text-amber-400 font-medium hover:text-amber-200 hover:drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] transition-all">
-          Create your own Beacon
+          Create your own campfire
         </a>
       </p>
     </div>

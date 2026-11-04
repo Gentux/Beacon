@@ -45,7 +45,7 @@ const lightBeacon = async () => {
   <div class="flex flex-col flex-1">
     <div v-if="isLoading"
       class="text-amber-400 font-medium animate-pulse text-center flex-1 flex items-center justify-center py-10">
-      Lighting the fires...
+      Start a campfire
     </div>
 
     <div v-else>
