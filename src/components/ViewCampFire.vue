@@ -56,36 +56,23 @@ const joinEvent = async () => {
   }
 }
 
-const downloadIcs = () => {
-  const startDate = new Date(viewData.value.when)
-  const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000)
-  const formatDate = (date: Date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+const subscribeWebcal = () => {
+  const attended = JSON.parse(localStorage.getItem('beacon_attended_events') || '[]')
 
-  const eventUrl = window.location.href
-  const notesDesc = viewData.value.notes ? `${viewData.value.notes}\\n\\n` : ''
-  const description = `${notesDesc}Link: ${eventUrl}`
+  if (!attended.includes(props.eventId)) {
+    attended.push(props.eventId)
+    localStorage.setItem('beacon_attended_events', JSON.stringify(attended))
+  }
 
-  const icsContent = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "BEGIN:VEVENT",
-    `SUMMARY:${viewData.value.what}`,
-    `LOCATION:${viewData.value.where}`,
-    `DESCRIPTION:${description}`,
-    `URL:${eventUrl}`,
-    `DTSTART:${formatDate(startDate)}`,
-    `DTEND:${formatDate(endDate)}`,
-    "END:VEVENT",
-    "END:VCALENDAR"
-  ].join("\r\n")
+  const ids = attended.join(',')
 
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = 'beacon.ics'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  // Fetch your Supabase URL from environment variables
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  // Remove protocol (http:// or https://) for webcal formatting
+  const baseUrl = supabaseUrl.replace(/^https?:\/\//, '')
+
+  const webcalUrl = `webcal://${baseUrl}/functions/v1/calendar?ids=${ids}`
+  window.location.href = webcalUrl
 }
 </script>
 
@@ -109,28 +96,29 @@ const downloadIcs = () => {
         </div>
       </div>
 
-      <button @click="downloadIcs"
+      <button @click="subscribeWebcal"
         class="w-full py-4 rounded-xl font-bold text-lg text-slate-100 bg-slate-800 border border-slate-700 hover:bg-slate-700 transition-all mb-8">
-        Add to Agenda (.ics)
+        Subscribe to Updates (.ics)
       </button>
 
       <div class="mt-2 bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
-        <h4 class="text-slate-400 font-medium mb-4">Who has answered the call? ({{ attendees.length }})</h4>
-        <ul class="space-y-2 mb-6">
-          <li v-for="guest in attendees" :key="guest.id"
-            class="bg-[#111827] px-4 py-3 rounded-lg border-l-4 border-amber-500 text-slate-200">
-            {{ guest.name }}
-          </li>
-        </ul>
+        <h4 class="text-slate-400 font-medium mb-4">Who{{ attendees.length < 2 ? "'s" : " are" }} sitting around ? ({{
+          attendees.length }})</h4>
+            <ul class="space-y-2 mb-6">
+              <li v-for="guest in attendees" :key="guest.id"
+                class="bg-[#111827] px-4 py-3 rounded-lg border-l-4 border-amber-500 text-slate-200">
+                {{ guest.name }}
+              </li>
+            </ul>
 
-        <form @submit.prevent="joinEvent" class="flex gap-2">
-          <input v-model="guestName" type="text" placeholder="Your name" required
-            class="flex-1 px-4 py-3 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
-          <button type="submit"
-            class="px-6 rounded-xl font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(234,88,12,0.6)] transition-all">
-            Join the circle
-          </button>
-        </form>
+            <form @submit.prevent="joinEvent" class="flex gap-2">
+              <input v-model="guestName" type="text" placeholder="Your name" required
+                class="flex-1 px-4 py-3 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
+              <button type="submit"
+                class="px-6 rounded-xl font-bold text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(234,88,12,0.6)] transition-all">
+                Join the circle
+              </button>
+            </form>
       </div>
 
       <p class="mt-12 text-center">

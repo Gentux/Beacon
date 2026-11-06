@@ -32,7 +32,7 @@ const lightBeacon = async () => {
     return
   }
 
-  shareUrl.value = `${window.location.origin}${window.location.pathname}?id=${data.id}`
+  shareUrl.value = `${window.location.origin}/?id=${data.id}`
 
   await nextTick()
   if (qrcodeCanvas.value) {

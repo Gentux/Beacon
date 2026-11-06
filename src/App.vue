@@ -4,6 +4,7 @@ import CreateCampFire from './components/CreateCampFire.vue'
 import ViewCampFire from './components/ViewCampFire.vue'
 import SettingsPage from './components/SettingsPage.vue'
 import InternalFire from './components/InternalFire.vue'
+import WebcalPage from './components/WebcalPage.vue'
 
 const currentRoute = ref('create')
 const eventId = ref<string | null>(null)
@@ -20,6 +21,8 @@ onMounted(() => {
     currentRoute.value = 'settings'
   } else if (page === 'internal-fire') {
     currentRoute.value = 'internal-fire'
+  } else if (page === 'calendar') {
+    currentRoute.value = 'calendar'
   }
 })
 </script>
@@ -37,6 +40,7 @@ onMounted(() => {
       <ViewCampFire v-if="currentRoute === 'view' && eventId" :eventId="eventId" />
       <SettingsPage v-else-if="currentRoute === 'settings'" />
       <InternalFire v-else-if="currentRoute === 'internal-fire'" />
+      <WebcalPage v-else-if="currentRoute === 'calendar'" />
       <CreateCampFire v-else />
     </div>
 
