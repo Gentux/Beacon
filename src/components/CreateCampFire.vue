@@ -13,7 +13,7 @@ const formWhen = ref('')
 const formTime = ref('')
 const formNotes = ref('')
 
-const lightBeacon = async () => {
+const startFirecamp = async () => {
   isLoading.value = true
 
   const dateTimeString = formTime.value ? `${formWhen.value}T${formTime.value}` : `${formWhen.value}T00:00`
@@ -38,6 +38,12 @@ const lightBeacon = async () => {
   if (qrcodeCanvas.value) {
     QRCode.toCanvas(qrcodeCanvas.value, shareUrl.value, { width: 250 })
   }
+
+  const attended = JSON.parse(localStorage.getItem('beacon_attended_events') || '[]')
+  if (!attended.includes(data.id)) {
+    attended.push(data.id)
+    localStorage.setItem('beacon_attended_events', JSON.stringify(attended))
+  }
 }
 </script>
 
@@ -49,7 +55,7 @@ const lightBeacon = async () => {
     </div>
 
     <div v-else>
-      <form @submit.prevent="lightBeacon" class="flex flex-col gap-4">
+      <form @submit.prevent="startFirecamp" class="flex flex-col gap-4">
         <input v-model="formWhat" type="text" placeholder="What? (e.g., Drinks)" required
           class="w-full px-4 py-3.5 bg-[#0b0f19] border border-slate-700 rounded-xl focus:outline-none focus:border-amber-500 focus:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all text-slate-50 placeholder-slate-500" />
 
@@ -68,7 +74,7 @@ const lightBeacon = async () => {
 
         <button type="submit"
           class="w-full py-4 mt-2 rounded-xl font-bold text-lg text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-[0_4px_20px_rgba(234,88,12,0.4)] hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(234,88,12,0.6)] transition-all">
-          Light the Beacon!
+          Start a campfire
         </button>
       </form>
 
